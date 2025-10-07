@@ -8,9 +8,9 @@ if 'correct' not in st.session_state:
     st.session_state.num1 = random.randint(10, 99)
     st.session_state.num2 = random.randint(10, 99)
     st.session_state.operator = random.choice(['+', '-', '*', '/'])
-    st.session_state.correct_answer = None
+    st.session_state.correct_answer = None  # Initialize as None
 
-# Function to generate a new problem
+# Function to generate a new problem and set correct answer
 def generate_problem():
     st.session_state.num1 = random.randint(10, 99)
     st.session_state.num2 = random.randint(10, 99)
@@ -23,9 +23,13 @@ def generate_problem():
         st.session_state.correct_answer = st.session_state.num1 - st.session_state.num2
     elif st.session_state.operator == '*':
         st.session_state.correct_answer = st.session_state.num1 * st.session_state.num2
-    else:  # Ensure division results in a whole number
+    else:  # Division: Ensure whole number result
         st.session_state.correct_answer = st.session_state.num1 // st.session_state.num2
-        st.session_state.num1 = st.session_state.correct_answer * st.session_state.num2
+        st.session_state.num1 = st.session_state.correct_answer * st.session_state.num2  # Adjust num1
+
+# Set correct answer for initial problem
+if st.session_state.correct_answer is None:
+    generate_problem()
 
 # Layout: Two columns (left for problem, right for score)
 col1, col2 = st.columns([3, 1])
@@ -54,7 +58,6 @@ with col1:
                     st.error(f"Wrong! The correct answer was {st.session_state.correct_answer}")
                 # Generate new problem after submission
                 generate_problem()
-                # Clear input by resetting the widget (Streamlit handles this via rerun)
             except ValueError:
                 st.error("Please enter a valid number!")
         else:
@@ -68,5 +71,3 @@ with col2:
     if st.session_state.total > 0:
         accuracy = (st.session_state.correct / st.session_state.total) * 100
         st.write(f"Accuracy: {accuracy:.2f}%")
-
-# Run the app with: streamlit run math_game.py
