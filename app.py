@@ -8,7 +8,7 @@ if 'correct' not in st.session_state:
     st.session_state.num1 = random.randint(10, 99)
     st.session_state.num2 = random.randint(10, 99)
     st.session_state.operator = random.choice(['+', '-', '*', '/'])
-    st.session_state.correct_answer = None  # Initialize as None
+    st.session_state.correct_answer = None
 
 # Function to generate a new problem and set correct answer
 def generate_problem():
@@ -37,12 +37,12 @@ col1, col2 = st.columns([3, 1])
 # Left column: Problem and input
 with col1:
     st.title("Math Game")
-    # Display the problem
-    problem = f"{st.session_state.num1} {st.session_state.operator} {st.session_state.num2} = "
-    st.write(f"**Solve**: {problem}")
+    # Display the problem in larger font using Markdown
+    problem = f"{st.session_state.num1} <span style='font-size:60px'>{st.session_state.operator}</span> {st.session_state.num2} = "
+    st.markdown(f"<h2 style='font-size:40px'>{problem}</h2>", unsafe_allow_html=True)
 
     # User input for answer
-    user_answer = st.text_input("Your answer:", key="answer_input")
+    user_answer = st.text_input("Your answer:", key=f"answer_input_{st.session_state.total}")  # Unique key to reset input
     
     # Submit button
     if st.button("Submit"):
@@ -54,14 +54,17 @@ with col1:
                 if abs(user_answer - st.session_state.correct_answer) < 0.01:  # Allow small float errors for division
                     st.session_state.correct += 1
                     st.success("Correct!")
+                    generate_problem()  # Auto-generate new problem on correct answer
                 else:
                     st.error(f"Wrong! The correct answer was {st.session_state.correct_answer}")
-                # Generate new problem after submission
-                generate_problem()
             except ValueError:
                 st.error("Please enter a valid number!")
         else:
             st.warning("Please enter an answer!")
+
+    # Refresh button to generate a new problem
+    if st.button("Refresh Problem"):
+        generate_problem()
 
 # Right column: Score display
 with col2:
