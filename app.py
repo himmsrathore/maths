@@ -2,6 +2,7 @@ import streamlit as st
 import random
 import time
 from datetime import datetime
+import pandas as pd  # Moved to top to avoid NameError
 
 # Initialize session state
 if 'correct' not in st.session_state:
@@ -40,23 +41,21 @@ def generate_problem():
     # Ensure no negative results for subtraction
     if st.session_state.operator == '-':
         if st.session_state.num1 < st.session_state.num2:
-            # Swap numbers to ensure num1 >= num2
             st.session_state.num1, st.session_state.num2 = st.session_state.num2, st.session_state.num1
     
     # Calculate correct answer
     if st.session_state.operator == '+':
         st.session_state.correct_answer = st.session_state.num1 + st.session_state.num2
     elif st.session_state.operator == '-':
-        st.session_state.correct_answer = st.session_state.num1 - st.session_state.num2  # Now guaranteed non-negative
+        st.session_state.correct_answer = st.session_state.num1 - st.session_state.num2
     elif st.session_state.operator == '*':
         st.session_state.correct_answer = st.session_state.num1 * st.session_state.num2
     else:  # Division: Ensure whole number result
-        # Ensure num1 is divisible by num2
         st.session_state.correct_answer = random.randint(1, max_num // min_num)
         st.session_state.num2 = random.randint(min_num, max_num)
         st.session_state.num1 = st.session_state.correct_answer * st.session_state.num2
         if st.session_state.num1 > max_num:
-            st.session_state.num1 = st.session_state.correct_answer * min_num  # Ensure within range
+            st.session_state.num1 = st.session_state.correct_answer * min_num
     
     # Start timer for new problem
     st.session_state.start_time = time.time()
@@ -133,7 +132,7 @@ with col1:
                 else:
                     st.error(f"Wrong! Correct answer: {st.session_state.correct_answer} ({time_spent:.1f}s)")
                 
-                generate_problem()  # Auto-generate new problem
+                generate_problem()
                 
             except ValueError:
                 st.error("Please enter a valid number!")
@@ -142,7 +141,6 @@ with col1:
 
     # Refresh button
     if st.button("Refresh Problem"):
-        # Record current problem as skipped if timer started
         if st.session_state.start_time:
             time_spent = time.time() - st.session_state.start_time
             problem_record = {
@@ -170,7 +168,7 @@ with col2:
     if st.session_state.problems:
         st.subheader("Problem History")
         df_data = []
-        for i, prob in enumerate(st.session_state.problems[-10:], 1):  # Show last 10 problems
+        for i, prob in enumerate(st.session_state.problems[-10:], 1):
             status = "✅" if prob['is_correct'] else "❌"
             answer = prob['user_answer'] if prob['user_answer'] is not None else "Skipped"
             df_data.append({
@@ -184,6 +182,3 @@ with col2:
         st.dataframe(df, use_container_width=True, height=300)
     else:
         st.write("No problems solved yet")
-
-# Import pandas for table display (add to requirements.txt)
-import pandas as pd
