@@ -2,7 +2,7 @@ import streamlit as st
 import random
 import time
 from datetime import datetime
-import pandas as pd  # Moved to top to avoid NameError
+import pandas as pd
 
 # Initialize session state
 if 'correct' not in st.session_state:
@@ -80,12 +80,13 @@ with col1:
         time_spent = current_time - st.session_state.start_time
         st.write(f"⏱️ Time on current problem: {time_spent:.1f} seconds")
     
-    # Display problem in large font
-    problem = f"{st.session_state.num1} <span style='font-size:60px'>{st.session_state.operator}</span> {st.session_state.num2} = "
-    st.markdown(f"<h2 style='font-size:40px'>{problem}</h2>", unsafe_allow_html=True)
-
-    # User input for answer
-    user_answer = st.text_input("Your answer:", key=f"answer_input_{st.session_state.total}")
+    # Display input box and problem in large font
+    input_col, problem_col = st.columns([1, 2])  # Split for input and problem
+    with input_col:
+        user_answer = st.text_input("", placeholder="Answer", key=f"answer_input_{st.session_state.total}")
+    with problem_col:
+        problem = f"{st.session_state.num1} <span style='font-size:60px'>{st.session_state.operator}</span> {st.session_state.num2} = "
+        st.markdown(f"<h2 style='font-size:40px'>{problem}</h2>", unsafe_allow_html=True)
 
     # Submit button
     if st.button("Submit"):
@@ -132,7 +133,7 @@ with col1:
                 else:
                     st.error(f"Wrong! Correct answer: {st.session_state.correct_answer} ({time_spent:.1f}s)")
                 
-                generate_problem()
+                generate_problem()  # Auto-generate new problem after every submission
                 
             except ValueError:
                 st.error("Please enter a valid number!")
